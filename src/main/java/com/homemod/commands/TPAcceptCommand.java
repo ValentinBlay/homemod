@@ -7,36 +7,31 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.commands.arguments.EntityArgument;
 
 public class TPAcceptCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("tpaccept")
-            .then(Commands.argument("player", EntityArgument.player())
-            .executes(context -> execute(context, EntityArgument.getPlayer(context, "player")))));
+            .executes(context -> execute(context))
+        );
     }
 
-    private static int execute(CommandContext<CommandSourceStack> context, ServerPlayer requester) {
+    private static int execute(CommandContext<CommandSourceStack> context) {
         ServerPlayer target = context.getSource().getPlayer();
 
         boolean accepted = false;
 
-        // Vérifie si une demande TPA existe
-        if (TPManager.acceptTPA(target, requester)) {
-            target.displayClientMessage(Component.literal("Vous avez accepté la demande de téléportation de " + requester.getName().getString()), false);
-            requester.displayClientMessage(Component.literal("Vous avez été téléporté vers " + target.getName().getString()), false);
+        // TPA
+        if (TPManager.acceptTPA(target)) {
             accepted = true;
         }
-        // Vérifie si une demande TPR existe
-        else if (TPManager.acceptTPR(target, requester)) {
-            target.displayClientMessage(Component.literal("Vous avez accepté la demande de téléportation vers " + requester.getName().getString()), false);
-            requester.displayClientMessage(Component.literal(target.getName().getString() + " est venu vers vous"), false);
+        // TPR
+        else if (TPManager.acceptTPR(target)) {
             accepted = true;
         }
 
         if (!accepted) {
-            target.displayClientMessage(Component.literal("Aucune demande de téléportation en attente de " + requester.getName().getString()), false);
+            target.displayClientMessage(Component.literal("Aucune demande de téléportation en attente."), false);
             return 0;
         }
 
