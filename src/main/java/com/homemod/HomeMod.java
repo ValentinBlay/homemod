@@ -3,6 +3,7 @@ package com.homemod;
 import com.homemod.commands.SetHomeCommand;
 import com.homemod.commands.DelHomeCommand;
 import com.homemod.commands.HomeCommand;
+import com.homemod.commands.ListHomeCommand;
 import com.homemod.commands.TPACommand;
 import com.homemod.commands.TPRCommand;
 import com.homemod.commands.TPAcceptCommand;
@@ -22,6 +23,7 @@ public class HomeMod implements ModInitializer {
             TPACommand.register(dispatcher);
             TPRCommand.register(dispatcher);
             TPAcceptCommand.register(dispatcher);
+            ListHomeCommand.register(dispatcher);
         });
     }
 }

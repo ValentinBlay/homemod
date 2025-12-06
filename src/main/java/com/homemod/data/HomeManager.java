@@ -56,4 +56,17 @@ public class HomeManager {
         }
         return null;
     }
+
+    public static Map<String, Home> getAllHomes(ServerPlayer player) {
+        String playerName = player.getName().getString();
+        Map<String, Home> playerHomes = homes.get(playerName);
+        if (playerHomes != null) {
+            return playerHomes;
+        }
+        return Map.of(); // Map vide si aucun home
+    }
+
+    public static Map<String, Home> getHomes(String playerName) {
+        return homes.get(playerName);
+    }
 }
