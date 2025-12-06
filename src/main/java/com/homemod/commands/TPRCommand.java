@@ -1,0 +1,46 @@
+package com.homemod.commands;
+
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+public class TPRCommand {
+
+    // Map pour stocker les demandes de téléportation vers un joueur : targetUUID -> requesterUUID
+    public static final Map<UUID, UUID> tprRequests = new HashMap<>();
+
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+        dispatcher.register(Commands.literal("tpr")
+            .then(Commands.argument("target", StringArgumentType.word())
+                .executes(context -> {
+                    ServerPlayer requester = context.getSource().getPlayer();
+                    ServerPlayer target = context.getSource().getServer().getPlayerList()
+                        .getPlayer(StringArgumentType.getString(context, "target"));
+
+                    if (target == null) {
+                        requester.displayClientMessage(Component.literal("Joueur introuvable."), false);
+                        return 0;
+                    }
+
+                    tprRequests.put(target.getUUID(), requester.getUUID());
+
+                    requester.displayClientMessage(Component.literal("Demande de téléportation vers " + target.getName().getString() + " envoyée."), false);
+                    target.displayClientMessage(Component.literal(requester.getName().getString() + " souhaite se téléporter vers vous. Tapez /tpaccept pour accepter."), false);
+
+                    // Petit son de notification pour le joueur ciblé
+                    target.level().playSound(null, target.getX(), target.getY(), target.getZ(),
+                        SoundEvents.NOTE_BLOCK_PLING, SoundSource.PLAYERS, 1.0f, 1.0f);
+
+                    return 1;
+                })));
+    }
+}
