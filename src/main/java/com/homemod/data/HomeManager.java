@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class HomeManager {
 
-    private static final Map<String, Map<String, Home>> homes = new HashMap<>();
+    private static Map<String, Map<String, Home>> homes = HomeStorage.loadedHomes;
 
     public static class Home {
         public final Vec3 position;
@@ -28,6 +28,7 @@ public class HomeManager {
         Map<String, Home> playerHomes = homes.get(playerName);
         if (playerHomes != null && playerHomes.containsKey(name)) {
             playerHomes.remove(name);
+            HomeStorage.save();
             return true;
         }
         return false;
@@ -45,6 +46,7 @@ public class HomeManager {
 
         Home home = new Home(player.position(), player.level().dimension());
         playerHomes.put(name, home);
+        HomeStorage.save();
         player.displayClientMessage(Component.literal("Home '" + name + "' défini."), false);
     }
 
@@ -63,7 +65,7 @@ public class HomeManager {
         if (playerHomes != null) {
             return playerHomes;
         }
-        return Map.of(); // Map vide si aucun home
+        return Map.of();
     }
 
     public static Map<String, Home> getHomes(String playerName) {
